@@ -39,4 +39,6 @@ def visualize_3d(coordinates):
     plt.show()
 
 
+# important: https://github.com/windowsub0406/KITTI_Tutorial/blob/master/display_groundtruth.ipynb
+
 
