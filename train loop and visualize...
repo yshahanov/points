@@ -204,3 +204,34 @@ if __name__ == '__main__':
 
             counter -= 1
             print('test finished')
+
+
+
+_______________________________________________________________
+
+
+might be a useless function 
+
+
+def create_dataloaders(dataset_path, batch_size=5, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15, test_own = False):
+
+    if not test_own:
+        the_entire_dataset = PointCloudData(dataset_path)
+
+        total_size = len(the_entire_dataset)
+        train_size = int(total_size * train_ratio)
+        val_size = int(total_size * val_ratio)
+        test_size = int(total_size * test_ratio)
+
+        # split the dataset
+        train_ds, val_ds, test_ds = random_split(the_entire_dataset, [train_size, val_size, test_size])
+
+        train_loader = DataLoader(dataset=train_ds, batch_size=batch_size, shuffle=True)
+        val_loader = DataLoader(dataset=val_ds, batch_size=batch_size, shuffle=False)
+        test_loader = DataLoader(dataset=test_ds, batch_size=batch_size, shuffle=False)
+
+        return train_loader, val_loader, test_loader
+
+    else:
+        # create my own dataloader to handle different kind of test data
+        pass
