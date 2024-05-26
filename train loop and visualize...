@@ -130,3 +130,77 @@ plt.ylabel('Loss')
 plt.title('Training Loss Over Iterations')
 plt.legend()
 plt.show()
+
+
+
+________________________________________________
+________________________________________________
+________________________________________________
+
+recent code: 
+
+import os
+import torch
+import time
+# a nice training progress bar
+from tqdm import tqdm
+import PointNets_model as pt
+import data_processing as ds
+import numpy as np
+from data_processing import dataset_path
+from dataloader_test import PointCloudTest
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print(device)
+
+data_array = []
+for i in range(3):
+    num_points = 20000
+    points = np.random.rand(num_points, 3)
+    data_array.append(points)
+
+if __name__ == '__main__':
+    # create a new instantiation of PointNetSeg model
+    pointnet = pt.PointNetSeg()
+
+    # load pyTorch model weights
+    model_path = os.path.join('', "pointnetmodelTest2.yml")
+    pointnet.load_state_dict(torch.load(model_path))
+
+    # move the model to cuda
+    pointnet.to(device)
+    pointnet.eval()
+    test_ds = PointCloudTest(data_array)
+    test_loader = ds.DataLoader(dataset=test_ds, batch_size=1, shuffle=False)
+    counter = 4
+
+    for i, data in tqdm(enumerate(test_loader, 0)):
+        if counter:
+            inputs = data
+            inputs = inputs.to(device).float()
+            outputs, _, _ = pointnet(inputs.transpose(1, 2))
+            print('Outputs: ')
+            print(outputs[0])
+            print('Inputs Lenghts')
+            print(len(outputs[0]))
+            # print(outputs[1], len(outputs[1]))
+            # print(outputs[2], len(outputs[2]))
+
+            # these are the predicted labels
+            _, predicted = torch.max(outputs.data, 1)
+
+            print('Predicted')
+            print(predicted)
+            print(len(predicted[0]))
+
+
+            # visualize results
+            # function to visualize various testing data....
+
+            remapped_pred = ds.remap_to_bgr(predicted[0].cpu().numpy(), ds.remap_color_scheme)
+            np_pointcloud = inputs[0].cpu().numpy()
+            ds.visualize3DPointCloud(np_pointcloud, remapped_pred)
+
+
+            counter -= 1
+            print('test finished')
